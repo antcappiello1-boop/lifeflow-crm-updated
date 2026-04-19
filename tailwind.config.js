@@ -1,176 +1,50 @@
-// =====================================================================
-// LifeFlow CRM — Domain types
-// These describe every entity in the app. When you swap to Prisma/Supabase
-// later, mirror these shapes in schema.prisma or your SQL schema.
-// =====================================================================
-
-export type UserRole = "owner" | "manager" | "agent" | "admin";
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatarColor: string; // tailwind color token for initial avatar
-}
-
-// -------- Leads --------
-
-export type LeadStatus =
-  | "new_lead"
-  | "attempted_contact"
-  | "contact_made"
-  | "needs_followup"
-  | "quoted"
-  | "application_started"
-  | "underwriting_review"
-  | "approved"
-  | "sold"
-  | "not_taken"
-  | "dead_lead"
-  | "do_not_call";
-
-export type LeadSource =
-  | "facebook"
-  | "google"
-  | "direct_mail"
-  | "referral"
-  | "tv"
-  | "inbound_call"
-  | "purchased_list"
-  | "other";
-
-export type LeadTemperature = "cold" | "warm" | "hot";
-
-export interface Lead {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  email?: string;
-  dob?: string; // ISO date
-  age?: number;
-  gender?: "M" | "F";
-  state: string; // two-letter code
-  city?: string;
-  zip?: string;
-  status: LeadStatus;
-  source: LeadSource;
-  temperature: LeadTemperature;
-  assignedAgentId: string;
-  notesPreview?: string;
-  createdAt: string;
-  lastContactedAt?: string;
-  nextFollowupAt?: string;
-  underwriting?: Underwriting;
-  carrierRecommendationId?: string;
-  application?: Application;
-  policy?: Policy;
-}
-
-// -------- Underwriting --------
-
-export type RiskLevel = "preferred" | "standard" | "graded" | "modified" | "guaranteed" | "decline";
-
-export interface Underwriting {
-  tobacco: "none" | "current" | "former_under_12mo" | "former_over_12mo";
-  heightInches?: number;
-  weightLbs?: number;
-  diabetes: "none" | "type2_oral" | "type2_insulin" | "type1" | "uncontrolled";
-  copd: boolean;
-  heartCondition: "none" | "history_over_2yr" | "recent";
-  strokeHistory: "none" | "history_over_2yr" | "recent";
-  cancerHistory: "none" | "remission_over_5yr" | "remission_under_5yr" | "active";
-  hospitalizedLast2Years: boolean;
-  numMedications: number;
-  notes?: string;
-  riskLevel?: RiskLevel;
-  summary?: string;
-}
-
-// -------- Carriers --------
-
-export interface Carrier {
-  id: string;
-  name: string;
-  productTypes: string[]; // e.g. "Whole Life", "Final Expense Level"
-  statesAvailable: string[]; // two-letter codes; "ALL" shorthand handled in UI
-  preferredHealthProfiles: RiskLevel[]; // which risk tiers this carrier likes
-  declineTriggers: string[]; // plain-english conditions that auto-decline
-  notes?: string;
-  riskAppetite: "conservative" | "moderate" | "aggressive";
-  logoInitials: string; // for the square badge
-  accentColor: string; // hex
-}
-
-// -------- Tasks / Follow-ups --------
-
-export type TaskPriority = "low" | "normal" | "high";
-export type TaskType = "callback" | "followup" | "quote_review" | "app_submit" | "other";
-
-export interface Task {
-  id: string;
-  leadId: string;
-  type: TaskType;
-  title: string;
-  dueAt: string; // ISO
-  priority: TaskPriority;
-  reason?: string;
-  completed: boolean;
-  completedAt?: string;
-}
-
-// -------- Applications / Policies --------
-
-export type ApplicationStatus =
-  | "not_started"
-  | "started"
-  | "submitted"
-  | "pending_requirements"
-  | "approved"
-  | "declined"
-  | "policy_issued";
-
-export interface Application {
-  id: string;
-  status: ApplicationStatus;
-  carrierId: string;
-  product: string;
-  faceAmount: number;
-  monthlyPremium: number;
-  draftDate?: number; // day of month 1–28
-  beneficiary?: string;
-  notes?: string;
-  submittedAt?: string;
-}
-
-export interface Policy {
-  policyNumber: string;
-  issuedAt: string;
-  effectiveAt: string;
-  faceAmount: number;
-  monthlyPremium: number;
-  carrierId: string;
-}
-
-// -------- Activity / Notes --------
-
-export type ActivityKind =
-  | "call"
-  | "note"
-  | "status_change"
-  | "text"
-  | "email"
-  | "task_created"
-  | "task_completed"
-  | "app_submitted"
-  | "policy_issued";
-
-export interface Activity {
-  id: string;
-  leadId: string;
-  kind: ActivityKind;
-  actorUserId: string;
-  timestamp: string;
-  body: string;
-}
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "serif"],
+      },
+      colors: {
+        // Deep navy primary — conveys trust, typical for financial services
+        ink: {
+          50: "#f5f6f8",
+          100: "#e8ebef",
+          200: "#cfd5de",
+          300: "#a8b2c2",
+          400: "#7a869e",
+          500: "#566281",
+          600: "#3f4a66",
+          700: "#2f3750",
+          800: "#1f2437",
+          900: "#111427",
+          950: "#0a0c1a",
+        },
+        // Warm amber accent — calls to action, hot leads
+        amber: {
+          50: "#fff8ec",
+          100: "#ffefd0",
+          200: "#ffdca0",
+          300: "#ffc266",
+          400: "#ffa12c",
+          500: "#f28511",
+          600: "#d66a0a",
+          700: "#ab4e0b",
+          800: "#863d11",
+          900: "#6d3311",
+        },
+        success: { 50: "#ecfdf5", 500: "#10b981", 600: "#059669", 700: "#047857" },
+        danger: { 50: "#fef2f2", 500: "#ef4444", 600: "#dc2626", 700: "#b91c1c" },
+        warn: { 50: "#fffbeb", 500: "#f59e0b", 600: "#d97706" },
+        info: { 50: "#eff6ff", 500: "#3b82f6", 600: "#2563eb" },
+      },
+      boxShadow: {
+        card: "0 1px 2px rgba(17, 20, 39, 0.04), 0 1px 3px rgba(17, 20, 39, 0.06)",
+        "card-hover": "0 4px 12px rgba(17, 20, 39, 0.08), 0 2px 4px rgba(17, 20, 39, 0.06)",
+      },
+    },
+  },
+  plugins: [],
+};
